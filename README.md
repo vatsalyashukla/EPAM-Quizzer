@@ -281,3 +281,5 @@ MIT
 ## 📞 Support
 
 For issues or questions, check the logs and browser console for detailed error messages.
+
+## For backend deployement

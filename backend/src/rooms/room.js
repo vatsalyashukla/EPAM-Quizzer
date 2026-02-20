@@ -7,6 +7,8 @@ export default class Room {
     this.participants = new Map();
     this.buzzerLocked = false;
     this.buzzes = [];
+    this.roundActive = false;
+    this.roundStartedAt = null;
     this.createdAt = Date.now();
     this.lastActivity = Date.now();
   }
@@ -22,6 +24,8 @@ export default class Room {
   resetRound() {
     this.buzzerLocked = false;
     this.buzzes = [];
+    this.roundActive = true;
+    this.roundStartedAt = Date.now();
     this.participants.forEach((p) => {
       p.buzzed = false;
       p.winner = false;

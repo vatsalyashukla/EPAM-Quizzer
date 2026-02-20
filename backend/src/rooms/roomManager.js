@@ -92,6 +92,13 @@ class RoomManager {
 
   recordBuzz(roomId, participantId) {
     const room = this.getRoom(roomId);
+
+    // Anti-cheat: reject buzz if no round is active
+    if (!room.roundActive) {
+      logger.warn('RoomManager', 'Buzz rejected - no active round', { roomId, participantId });
+      return { rejected: true, reason: 'No active round' };
+    }
+
     const participant = room.participants.get(participantId);
     if (!participant) throw new NotFoundError('Participant');
     if (participant.buzzed) return { alreadyBuzzed: true, buzzes: room.buzzes };
@@ -99,12 +106,26 @@ class RoomManager {
     const timestamp = Date.now();
     participant.buzzed = true;
     const diff = room.buzzes.length === 0 ? 0 : timestamp - room.buzzes[0].timestamp;
-    room.buzzes.push({ participantId, name: participant.name, timestamp, diff });
+
+    // Anti-cheat: calculate reaction time from round start
+    const reactionTime = timestamp - room.roundStartedAt;
+    const suspicious = reactionTime < 50; // <50ms is physically impossible for a human
+
+    if (suspicious) {
+      logger.warn('RoomManager', 'Suspicious buzz detected', {
+        roomId, participantId, name: participant.name, reactionTime,
+      });
+    }
+
+    room.buzzes.push({
+      participantId, name: participant.name, timestamp, diff,
+      reactionTime, suspicious,
+    });
 
     const first = room.buzzes[0].timestamp;
     room.buzzes.forEach((b) => { b.diff = b.timestamp - first; });
     room.touch();
-    logger.info('RoomManager', 'Buzz recorded', { roomId, participantId, buzzCount: room.buzzes.length });
+    logger.info('RoomManager', 'Buzz recorded', { roomId, participantId, buzzCount: room.buzzes.length, reactionTime, suspicious });
     return { buzzes: room.buzzes };
   }
 

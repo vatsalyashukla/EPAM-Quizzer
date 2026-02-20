@@ -150,15 +150,26 @@ class BuzzerServer {
         throw new ValidationError('Only participants can buzz');
       }
 
-      this.validateData(data, ['timestamp']);
-
       const roomId = socket.data.room;
       const participantId = socket.id;
       const result = roomManager.recordBuzz(
         roomId,
-        participantId,
-        data.timestamp
+        participantId
       );
+
+      if (result.rejected) {
+        logger.debug('BuzzerServer', 'Buzz rejected', {
+          roomId,
+          participantId,
+          reason: result.reason,
+        });
+
+        callback({
+          success: false,
+          error: result.reason,
+        });
+        return;
+      }
 
       if (result.alreadyBuzzed) {
         // Participant already buzzed this round
@@ -179,7 +190,6 @@ class BuzzerServer {
       logger.info('BuzzerServer', 'Participant buzzed', {
         roomId,
         participantId: socket.data.name,
-        timestamp: data.timestamp,
         buzzCount: result.buzzes.length
       });
 

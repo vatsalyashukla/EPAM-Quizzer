@@ -658,6 +658,10 @@ body {
     margin: var(--space-8) 0;
     position: relative;
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
 }
 
 .buzz-button::before {
@@ -689,6 +693,50 @@ body {
     cursor: not-allowed;
     box-shadow: none;
     opacity: 0.6;
+}
+
+.buzz-button .buzz-icon {
+    font-size: 1.2em;
+    line-height: 1;
+}
+
+.buzz-button .buzz-label {
+    line-height: 1;
+}
+
+.spacebar-hint {
+    text-align: center;
+    font-size: var(--font-size-sm);
+    color: var(--gray-600);
+    margin-top: var(--space-2);
+}
+
+/* Anti-cheat: Suspicious buzz indicators */
+.buzz-item.suspicious {
+    background: rgba(255, 193, 7, 0.15);
+    border-left: 3px solid #f59e0b;
+}
+
+[data-theme="dark"] .buzz-item.suspicious {
+    background: rgba(245, 158, 11, 0.2);
+}
+
+.suspicious-flag {
+    display: inline-block;
+    margin-left: 4px;
+    cursor: help;
+    animation: suspiciousPulse 2s ease-in-out infinite;
+}
+
+@keyframes suspiciousPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.reaction-time {
+    font-size: var(--font-size-xs);
+    color: var(--gray-500);
+    margin-left: 4px;
 }
 
 /* Info Box */
